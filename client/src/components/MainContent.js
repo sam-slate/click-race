@@ -11,8 +11,9 @@ class MainContent extends React.Component {
         super(props)
 
         this.state = {
-            total_num_clicks: 0,
             name: "Enter Name",
+            playing: false, 
+            seconds: 60,
             scores: {}
         }
 
@@ -28,15 +29,33 @@ class MainContent extends React.Component {
 
         this.socket = io();
 
-        // Set up a listener for the data
-        this.socket.on('UPDATE_DATA', data => {
-            console.log("Recieved new data")
-            console.log(data)
+        // Set up a listener for scores as an object
+        this.socket.on('UPDATE_SCORES', scores => {
+            console.log("Recieved new scores:")
+            console.log(scores)
 
             // When getting updated num clicks data, change state
-            this.setState({total_num_clicks: data["total_num_clicks"], scores: data["scores"]})
-            console.log("Recieved num_clicks: " + data["total_num_clicks"])
+            this.setState({scores: scores})
         });
+
+        // Set up listener for the start
+        // Data should be a number of seconds and scores as an object
+        this.socket.on('START', (seconds, scores) => {
+            console.log("Recieved start with seconds of: " + seconds + "and scores of: ")
+            console.log(scores)
+
+            // Change seconds, scores, and playing in state
+            this.setState({seconds: seconds, scores: scores, playing: true})
+        })
+
+        // Set up listener for the finish
+        // Data should be scores as an object
+        this.socket.on('FINISH', scores => {
+            console.log("Recieved finish with scores:")
+            console.log(scores)
+
+            this.setState({scores: scores, playing: false})
+        })
     }
 
     name_changed(e){
@@ -52,7 +71,7 @@ class MainContent extends React.Component {
     }
 
     start_clicked(){
-        this.socket.emit('START_CLICK')
+        this.socket.emit('START_CLICK', this.state.seconds)
 
         console.log('start button clicked')
     }
@@ -83,6 +102,16 @@ class MainContent extends React.Component {
                                 <Form.Label column xs="auto" id="name-label">Name:</Form.Label>
                                 <Col xs="auto">   
                                     <Form.Control id="name-form" size="sm" placeholder="Enter name" onChange={this.name_changed}/>
+                                </Col>
+                            </Form.Group>
+                        </Form>
+                    </Row>
+                    <Row className="main-content-row justify-content-center">
+                        <Form>
+                            <Form.Group as={Row} >
+                                <Form.Label column xs="auto" id="name-label">Seconds:</Form.Label>
+                                <Col xs="auto">   
+                                    <Form.Control id="name-form" size="sm" value={this.state.seconds} onChange={e => {this.setState({seconds: e.target.value})}}/>
                                 </Col>
                             </Form.Group>
                         </Form>

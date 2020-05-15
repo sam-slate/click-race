@@ -31,6 +31,9 @@ var scores = {}
 //Initialize bool to keep track of whether playing
 var playing = false
 
+//Initialize countdown variable
+var seconds = 0
+
 // Make connection
 io.on('connection', (socket) => {
     console.log("Connected with socket id of: " + socket.id)
@@ -38,16 +41,14 @@ io.on('connection', (socket) => {
     //Add id to the scores object
     scores[socket.id] = {score: 0, name: socket.id}
 
-    // As soon as connection is made, emit data
-    emit_data = {"scores": scores, "playing": playing}
-    io.emit('UPDATE_DATA', emit_data);
+    // As soon as connection is made, emit scores and playing
+    io.emit('UPDATE_SCORES', scores);
 
     // Set up a listener to a send click emit
     // Does not matter what the data is
-    socket.on('SEND_CLICK', function(data){
+    socket.on('SEND_CLICK', function(){
         // Log everything
-        console.log("Received SEND_CLICK from " + socket.id + " with data of:")
-        console.log(data)
+        console.log("Received SEND_CLICK from " + socket.id)
 
         // Check if we are currently playing
         if (playing){
@@ -55,40 +56,55 @@ io.on('connection', (socket) => {
             scores[socket.id]["score"] += 1
         }
     
-        emit_data["scores"] = scores
-        io.emit('UPDATE_DATA', emit_data);
+        io.emit('UPDATE_SCORES', scores);
 
-        console.log("Sending back emit data package of:")
-        console.log(emit_data)
+        console.log("Sending back scores of:")
+        console.log(scores)
     })
 
     // Set up a listener to a change name emit
     // Expects data to be a string with a name
-    socket.on('CHANGE_NAME', function(data){
-        console.log("Received CHANGE_NAME from " + socket.id + " with data of:")
-        console.log(data)
+    socket.on('CHANGE_NAME', function(name){
+        console.log("Received CHANGE_NAME from " + socket.id + " with name of:")
+        console.log(name)
 
-        scores[socket.id]["name"] = data
+        scores[socket.id]["name"] = name
 
-        emit_data["scores"] = scores
-        io.emit('UPDATE_DATA', emit_data);
+        io.emit('UPDATE_SCORES', scores);
 
-        console.log("Sending back emit data package of:")
-        console.log(emit_data)
+        console.log("Sending back scores of:")
+        console.log(scores)
     })
 
     // Set up listener for a start click emit
-    // Does not matter what the data is
-    socket.on('START_CLICK', function(data){
-        console.log("Received START_CLICK from " + socket.id + " with data of:")
-        console.log(data)
+    // Expects the number of seconds as a number
+    socket.on('START_CLICK', function(seconds_received){
+        console.log("Received START_CLICK from " + socket.id + " with seconds:")
+        console.log(seconds_received)
 
         // Check if already playing
         if (!playing){
-            // If not, update playing and emit data
+            // If not, update playing and seconds
             playing = true
-            emit_data["playing"] = playing
-            io.emit('UPDATE_DATA', emit_data);
+            seconds = seconds_received
+
+
+            Object.keys(scores).map(function(key) {
+                scores[key]['score'] = 0;
+              });
+ 
+            //Emit start and pass the number of seconds chosen and scores
+            io.emit('START', seconds, scores);
+
+            //Set timeout for seconds and pass in function that
+            setTimeout(()=>{
+                console.log("Timer is finished")
+
+                playing = false
+
+                //Emit finish with scores
+                io.emit('FINISH', scores)
+            }, seconds * 1000);
         }
     })
 
@@ -96,8 +112,7 @@ io.on('connection', (socket) => {
         //On disconnect, remove socket.id from scores data and emit data again
         delete scores[socket.id]
         
-        emit_data["scores"] = scores
-        io.emit('UPDATE_DATA', emit_data);
+        io.emit('UPDATE_SCORES', scores);
 
         console.log(socket.id + ' disconnected');
     });
