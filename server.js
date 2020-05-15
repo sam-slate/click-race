@@ -25,12 +25,11 @@ if (process.env.NODE_ENV === 'production') {
 var socket = require('socket.io');
 io = socket(server);
 
-
 //Initialize variable to hold scores
 var scores = {}
 
 //Initialize bool to keep track of whether playing
-var playing = true
+var playing = false
 
 // Make connection
 io.on('connection', (socket) => {
@@ -44,6 +43,7 @@ io.on('connection', (socket) => {
     io.emit('UPDATE_DATA', emit_data);
 
     // Set up a listener to a send click emit
+    // Does not matter what the data is
     socket.on('SEND_CLICK', function(data){
         // Log everything
         console.log("Received SEND_CLICK from " + socket.id + " with data of:")
@@ -75,6 +75,21 @@ io.on('connection', (socket) => {
 
         console.log("Sending back emit data package of:")
         console.log(emit_data)
+    })
+
+    // Set up listener for a start click emit
+    // Does not matter what the data is
+    socket.on('START_CLICK', function(data){
+        console.log("Received START_CLICK from " + socket.id + " with data of:")
+        console.log(data)
+
+        // Check if already playing
+        if (!playing){
+            // If not, update playing and emit data
+            playing = true
+            emit_data["playing"] = playing
+            io.emit('UPDATE_DATA', emit_data);
+        }
     })
 
     socket.on('disconnect', () => {

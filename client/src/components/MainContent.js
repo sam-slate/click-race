@@ -19,6 +19,7 @@ class MainContent extends React.Component {
         this.button_clicked = this.button_clicked.bind(this)
         this.create_scores_array = this.create_scores_array.bind(this)
         this.name_changed = this.name_changed.bind(this)
+        this.start_clicked = this.start_clicked.bind(this)
 
     }
 
@@ -50,6 +51,12 @@ class MainContent extends React.Component {
         console.log("button clicked")
     }
 
+    start_clicked(){
+        this.socket.emit('START_CLICK')
+
+        console.log('start button clicked')
+    }
+
     create_scores_array(){
          // Create scores array
          var scores_array = Object.keys(this.state.scores).map(key => {
@@ -79,6 +86,9 @@ class MainContent extends React.Component {
                                 </Col>
                             </Form.Group>
                         </Form>
+                    </Row>
+                    <Row className="main-content-row justify-content-center">
+                        <button type="button" id="start-button" className="btn btn-success btn-sm" onClick={this.start_clicked}>Start</button>
                     </Row>
                     <Row className="main-content-row justify-content-center">
                         <button type="button" id="click-me-button" className="btn btn-primary btn-lg" onClick={this.button_clicked}>Click Me</button>
