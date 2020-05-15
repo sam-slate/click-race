@@ -19,11 +19,12 @@ class MainContent extends React.Component {
         this.button_clicked = this.button_clicked.bind(this)
         this.create_scores_array = this.create_scores_array.bind(this)
 
+    }
+
+    componentDidMount(){
         // Initialize socket
 
-        // Uncomment for heroku/production
         this.socket = io();
-        // this.socket = io("http://localhost:8080/")
 
         // Set up a listener for the data
         this.socket.on('UPDATE_DATA', data => {

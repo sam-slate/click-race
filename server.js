@@ -32,6 +32,8 @@ var scores = {}
 
 // Make connection
 io.on('connection', (socket) => {
+    console.log("socket id is: " + socket.id)
+
     // As soon as connection is made, emit data
     emit_data = {"scores": scores, "total_num_clicks": total_num_clicks}
     io.emit('UPDATE_DATA', emit_data);
