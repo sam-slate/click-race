@@ -18,6 +18,7 @@ class MainContent extends React.Component {
 
         this.button_clicked = this.button_clicked.bind(this)
         this.create_scores_array = this.create_scores_array.bind(this)
+        this.name_changed = this.name_changed.bind(this)
 
     }
 
@@ -37,10 +38,14 @@ class MainContent extends React.Component {
         });
     }
 
+    name_changed(e){
+        this.setState({name: e.target.value})
+
+        this.socket.emit('CHANGE_NAME', e.target.value)
+    }
+
     button_clicked(){
-        this.socket.emit('SEND_CLICK', {
-            name: this.state.name,
-        });
+        this.socket.emit('SEND_CLICK');
 
         console.log("button clicked")
     }
@@ -48,7 +53,7 @@ class MainContent extends React.Component {
     create_scores_array(){
          // Create scores array
          var scores_array = Object.keys(this.state.scores).map(key => {
-            return [key, this.state.scores[key]];
+            return [this.state.scores[key]["name"], this.state.scores[key]["score"]];
         });
         
         // Sort the array based on the second element
@@ -70,16 +75,13 @@ class MainContent extends React.Component {
                             <Form.Group as={Row} >
                                 <Form.Label column xs="auto" id="name-label">Name:</Form.Label>
                                 <Col xs="auto">   
-                                    <Form.Control id="name-form" size="sm" placeholder="Enter name" onChange={e => {this.setState({name: e.target.value})}}/>
+                                    <Form.Control id="name-form" size="sm" placeholder="Enter name" onChange={this.name_changed}/>
                                 </Col>
                             </Form.Group>
                         </Form>
                     </Row>
                     <Row className="main-content-row justify-content-center">
                         <button type="button" id="click-me-button" className="btn btn-primary btn-lg" onClick={this.button_clicked}>Click Me</button>
-                    </Row>
-                    <Row className="main-content-row justify-content-center">
-                        <p>Total number of clicks: {this.state.total_num_clicks}</p>
                     </Row>
                     <Row className="main-content-row justify-content-center">
                         <div>

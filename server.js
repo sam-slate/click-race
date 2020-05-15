@@ -25,39 +25,65 @@ if (process.env.NODE_ENV === 'production') {
 var socket = require('socket.io');
 io = socket(server);
 
-// Set up number of clicks to be 0
-var total_num_clicks = 0
 
+//Initialize variable to hold scores
 var scores = {}
+
+//Initialize bool to keep track of whether playing
+var playing = true
 
 // Make connection
 io.on('connection', (socket) => {
-    console.log("socket id is: " + socket.id)
+    console.log("Connected with socket id of: " + socket.id)
+
+    //Add id to the scores object
+    scores[socket.id] = {score: 0, name: socket.id}
 
     // As soon as connection is made, emit data
-    emit_data = {"scores": scores, "total_num_clicks": total_num_clicks}
+    emit_data = {"scores": scores, "playing": playing}
     io.emit('UPDATE_DATA', emit_data);
-
-    console.log("Connected");
 
     // Set up a listener to a send click emit
     socket.on('SEND_CLICK', function(data){
-      // When a click is sent, add to score table and emit data again
-      total_num_clicks += 1
-      if (!(data["name"] in  scores)){
-        scores[data["name"]] = 1
-      } else {
-        scores[data["name"]] += 1
-      }
+        // Log everything
+        console.log("Received SEND_CLICK from " + socket.id + " with data of:")
+        console.log(data)
 
-      emit_data["scores"] = scores
-      emit_data["total_num_clicks"] = total_num_clicks
-      io.emit('UPDATE_DATA', emit_data);
-      console.log(data)
-      console.log(scores)
-  })
+        // Check if we are currently playing
+        if (playing){
+            // When a click is sent, add to score table and emit data again{
+            scores[socket.id]["score"] += 1
+        }
+    
+        emit_data["scores"] = scores
+        io.emit('UPDATE_DATA', emit_data);
 
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
+        console.log("Sending back emit data package of:")
+        console.log(emit_data)
+    })
+
+    // Set up a listener to a change name emit
+    // Expects data to be a string with a name
+    socket.on('CHANGE_NAME', function(data){
+        console.log("Received CHANGE_NAME from " + socket.id + " with data of:")
+        console.log(data)
+
+        scores[socket.id]["name"] = data
+
+        emit_data["scores"] = scores
+        io.emit('UPDATE_DATA', emit_data);
+
+        console.log("Sending back emit data package of:")
+        console.log(emit_data)
+    })
+
+    socket.on('disconnect', () => {
+        //On disconnect, remove socket.id from scores data and emit data again
+        delete scores[socket.id]
+        
+        emit_data["scores"] = scores
+        io.emit('UPDATE_DATA', emit_data);
+
+        console.log(socket.id + ' disconnected');
+    });
 });
