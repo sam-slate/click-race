@@ -4,6 +4,8 @@ import Form from "react-bootstrap/Form"
 import Col from "react-bootstrap/Col"
 import Row from "react-bootstrap/Row"
 import Container from "react-bootstrap/Container"
+import Jumbotron from "react-bootstrap/Jumbotron"
+import InputGroup from "react-bootstrap/InputGroup"
 
 class MainContent extends React.Component {
 
@@ -14,7 +16,9 @@ class MainContent extends React.Component {
             name: "Enter Name",
             playing: false, 
             seconds: 60,
-            scores: {}
+            scores: {},
+            message: "Enter your name and wait for others to join the scoreboard. Once everyone is ready, enter a number of seconds and click start!",
+            jumbotron_color: "#E9ECEF"
         }
 
         this.button_clicked = this.button_clicked.bind(this)
@@ -44,8 +48,36 @@ class MainContent extends React.Component {
             console.log("Recieved start with seconds of: " + seconds + "and scores of: ")
             console.log(scores)
 
-            // Change seconds, scores, and playing in state
-            this.setState({seconds: seconds, scores: scores, playing: true})
+            // Change seconds, scores, message, and jumbotron color in state
+            this.setState({seconds: seconds, scores: scores, message: seconds + " seconds starts in: 3", jumbotron_color: "#fff8c7"})
+
+            setTimeout(()=>{
+                this.setState({message: seconds + " seconds starts in: 2"})
+
+                setTimeout(()=>{
+                    this.setState({message: seconds + " seconds starts in: 1"})
+                    setTimeout(()=>{
+                        this.setState({message: seconds + " seconds", playing: true, jumbotron_color: "#ffd2c7"})
+
+                        var x = seconds - 1;
+                        var intervalID = setInterval(() => {
+                            if (x ==-  1){
+                                this.setState({message: x + " second"})
+                            } else {
+                                this.setState({message: x + " seconds"})
+                            }
+
+                            if (--x === -1) {
+                                clearInterval(intervalID);
+                                this.setState({message: "Game over! Winner was: " + this.create_scores_array()[0][0], jumbotron_color: "#cdffc7"})
+
+                            }
+                        }, 1000);
+                        
+                    }, 1000)
+                }, 1000)
+            }, 1000)
+
         })
 
         // Set up listener for the finish
@@ -91,46 +123,55 @@ class MainContent extends React.Component {
     }
 
     render(){
+
         return(
                 <Container id="main-content-container">
-                    <Row className="main-content-row justify-content-center">
-                        <i>Enter your name, start clicking, and keep track on the scoreboard below</i>
-                    </Row>  
-                    <Row className="main-content-row justify-content-center">
-                        <Form>
-                            <Form.Group as={Row} >
-                                <Form.Label column xs="auto" id="name-label">Name:</Form.Label>
-                                <Col xs="auto">   
-                                    <Form.Control id="name-form" size="sm" placeholder="Enter name" onChange={this.name_changed}/>
-                                </Col>
-                            </Form.Group>
-                        </Form>
-                    </Row>
-                    <Row className="main-content-row justify-content-center">
-                        <Form>
-                            <Form.Group as={Row} >
-                                <Form.Label column xs="auto" id="name-label">Seconds:</Form.Label>
-                                <Col xs="auto">   
-                                    <Form.Control id="name-form" size="sm" value={this.state.seconds} onChange={e => {this.setState({seconds: e.target.value})}}/>
-                                </Col>
-                            </Form.Group>
-                        </Form>
-                    </Row>
-                    <Row className="main-content-row justify-content-center">
-                        <button type="button" id="start-button" className="btn btn-success btn-sm" onClick={this.start_clicked}>Start</button>
-                    </Row>
-                    <Row className="main-content-row justify-content-center">
-                        <button type="button" id="click-me-button" className="btn btn-primary btn-lg" onClick={this.button_clicked}>Click Me</button>
-                    </Row>
-                    <Row className="main-content-row justify-content-center">
-                        <div>
-                            <b>Scoreboard:</b>
-                            <ol>
-                                {this.create_scores_array().map((value, index) => {
-                                    return <li key={index}>{value[0]}: {value[1]}</li>
-                                })}
-                            </ol>
-                        </div>
+                    <Row>
+                        <Col md={{ span: 4, offset: 4 }}>
+                            <Row className="main-content-row">
+                                <div className="jumbotron element-full-width" style={{backgroundColor: this.state.jumbotron_color}}>
+                                    <p className="jumbotron-message">{this.state.message}</p>
+                                </div>
+                            </Row>
+                            {this.state.playing ?
+                                <Row className="main-content-row justify-content-center">
+                                    <button type="button" id="click-me-button" className="btn btn-primary btn-lg" onClick={this.button_clicked}>Click Me</button>
+                                </Row>
+                            : <></>}
+                            {!this.state.playing ?
+                                <div>
+                                    <Row className="main-content-row">
+                                        <InputGroup className="mb-3">
+                                            <InputGroup.Prepend>
+                                                <InputGroup.Text>Name</InputGroup.Text>
+                                            </InputGroup.Prepend>
+                                            <Form.Control placeholder="Enter name" onChange={this.name_changed}/>
+                                        </InputGroup>
+                                    </Row>
+                                    <Row className="main-content-row">
+                                        <InputGroup className="mb-3">
+                                            <InputGroup.Prepend>
+                                                <InputGroup.Text>Seconds</InputGroup.Text>
+                                            </InputGroup.Prepend>
+                                            <Form.Control value={this.state.seconds} onChange={e => {this.setState({seconds: e.target.value})}}/>
+                                            <InputGroup.Append>
+                                                <button type="button" id="start-button" className="btn btn-success btn-sm" onClick={this.start_clicked}>Start</button>
+                                            </InputGroup.Append>
+                                        </InputGroup>
+                                    </Row>
+                                </div>
+                              : <></> }
+                            <Row className="main-content-row justify-content-center">
+                                <div>
+                                    <b>Scoreboard:</b>
+                                    <ol>
+                                        {this.create_scores_array().map((value, index) => {
+                                            return <li key={index}>{value[0]}: {value[1]}</li>
+                                        })}
+                                    </ol>
+                                </div>
+                            </Row>
+                        </Col>
                     </Row>
                 </Container>
         )

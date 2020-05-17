@@ -84,27 +84,36 @@ io.on('connection', (socket) => {
 
         // Check if already playing
         if (!playing){
-            // If not, update playing and seconds
-            playing = true
+
+            // Update seconds
             seconds = seconds_received
 
-
-            Object.keys(scores).map(function(key) {
-                scores[key]['score'] = 0;
-              });
- 
             //Emit start and pass the number of seconds chosen and scores
             io.emit('START', seconds, scores);
 
-            //Set timeout for seconds and pass in function that
+            console.log("Starting countdown")
+            // Wait for the countdown to stop
             setTimeout(()=>{
-                console.log("Timer is finished")
+                console.log("Ending countdown")
 
-                playing = false
+                // Update playing
+                playing = true
 
-                //Emit finish with scores
-                io.emit('FINISH', scores)
-            }, seconds * 1000);
+                Object.keys(scores).map(function(key) {
+                    scores[key]['score'] = 0;
+                });
+                
+                //Set timeout for seconds and pass in finish function 
+                setTimeout(()=>{
+                    console.log("Timer is finished")
+
+                    playing = false
+
+                    //Emit finish with scores
+                    io.emit('FINISH', scores)
+                }, seconds * 1000);
+            }, 3000)
+            
         }
     })
 

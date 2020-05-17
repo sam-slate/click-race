@@ -28,3 +28,18 @@ code {
 .main-content-row{
   margin: 10px
 }
+
+.element-full-width{
+  width: 100%
+}
+
+.jumbotron-message{
+  text-align: center;
+  vertical-align: middle;
+  font-size: 20px;
+}
+
+#click-me-button{
+  height: 80px;
+  width: 180px;
+}
