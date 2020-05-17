@@ -19,6 +19,8 @@ code {
 
 #click-me-button{
   touch-action: manipulation;
+  height: 80px;
+  width: 180px;
 }
 
 #main-content-container{
@@ -39,7 +41,12 @@ code {
   font-size: 20px;
 }
 
-#click-me-button{
-  height: 80px;
-  width: 180px;
+/* .jumbotron{
+  margin-top: -20px;
+  margin-bottom: -20px;
+} */
+
+h1,h2,h3,p{
+  padding:0;
+  margin:0;
 }
