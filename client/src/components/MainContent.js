@@ -15,7 +15,7 @@ class MainContent extends React.Component {
         this.state = {
             name: "Enter Name",
             playing: false, 
-            seconds: 60,
+            seconds: 10,
             scores: {},
             message: "Enter your name and wait for others to join the scoreboard. Once everyone is ready, enter a number of seconds and click start!",
             jumbotron_color: "#E9ECEF"
@@ -25,6 +25,7 @@ class MainContent extends React.Component {
         this.create_scores_array = this.create_scores_array.bind(this)
         this.name_changed = this.name_changed.bind(this)
         this.start_clicked = this.start_clicked.bind(this)
+        this.handle_click_me_key_down = this.handle_click_me_key_down.bind(this)
 
     }
 
@@ -61,7 +62,7 @@ class MainContent extends React.Component {
 
                         var x = seconds - 1;
                         var intervalID = setInterval(() => {
-                            if (x ==-  1){
+                            if (x ===  1){
                                 this.setState({message: x + " second"})
                             } else {
                                 this.setState({message: x + " seconds"})
@@ -69,7 +70,20 @@ class MainContent extends React.Component {
 
                             if (--x === -1) {
                                 clearInterval(intervalID);
-                                this.setState({message: "Game over! Winner was: " + this.create_scores_array()[0][0], jumbotron_color: "#cdffc7"})
+
+                                var scores_array = this.create_scores_array()
+
+                                var game_over_message = "Game over! Winner was: " + scores_array[0][0]
+
+                                // Check if there are more than 1 players
+                                if (scores_array.length > 1){
+                                    // Check to see if the top two scores are the same
+                                    if(scores_array[0][1] === scores_array[1][1]){
+                                        game_over_message = "Game over! It was a tie!"
+                                    }
+                                }
+
+                                this.setState({message: game_over_message, jumbotron_color: "#cdffc7"})
 
                             }
                         }, 1000);
@@ -90,16 +104,27 @@ class MainContent extends React.Component {
         })
     }
 
+    // Used to prevent holding down enter cheat
+    handle_click_me_key_down(e){
+        if (e.key === 'Enter') {
+            console.log('Enter is pressed');
+
+            e.preventDefault()
+        }
+    }
+
     name_changed(e){
         this.setState({name: e.target.value})
 
         this.socket.emit('CHANGE_NAME', e.target.value)
     }
 
-    button_clicked(){
+    button_clicked(event){
         this.socket.emit('SEND_CLICK');
 
         console.log("button clicked")
+
+        // event.preventDefault()
     }
 
     start_clicked(){
@@ -135,7 +160,7 @@ class MainContent extends React.Component {
                             </Row>
                             {this.state.playing ?
                                 <Row className="main-content-row justify-content-center">
-                                    <button type="button" id="click-me-button" className="btn btn-primary btn-lg" onClick={this.button_clicked}>Click Me</button>
+                                    <button type="button" id="click-me-button" className="btn btn-primary btn-lg" onClick={this.button_clicked} onKeyDown={this.handle_click_me_key_down}>Click Me</button>
                                 </Row>
                             : <></>}
                             {!this.state.playing ?

@@ -88,6 +88,11 @@ io.on('connection', (socket) => {
             // Update seconds
             seconds = seconds_received
 
+            // Clear scores for all players
+            Object.keys(scores).map(function(key) {
+                scores[key]['score'] = 0;
+            });
+
             //Emit start and pass the number of seconds chosen and scores
             io.emit('START', seconds, scores);
 
@@ -98,10 +103,6 @@ io.on('connection', (socket) => {
 
                 // Update playing
                 playing = true
-
-                Object.keys(scores).map(function(key) {
-                    scores[key]['score'] = 0;
-                });
                 
                 //Set timeout for seconds and pass in finish function 
                 setTimeout(()=>{
