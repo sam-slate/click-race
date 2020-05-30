@@ -1,6 +1,6 @@
-# whack-a-button
+# click-race
 
-Multiplayer, real-time whack-a-mole game built with React, Node.js, and Express. Configured for deployment on Heroku. Built as a learning project for the React stack and socket.io.
+Multiplayer, real-time click racer game built with React, Node.js, and Express. Configured for deployment on Heroku. Built as a learning project for the React stack and socket.io.
 
 The home directory contains the server and the client directory contains the client. 
 
