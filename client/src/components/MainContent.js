@@ -4,7 +4,6 @@ import Form from "react-bootstrap/Form"
 import Col from "react-bootstrap/Col"
 import Row from "react-bootstrap/Row"
 import Container from "react-bootstrap/Container"
-import Jumbotron from "react-bootstrap/Jumbotron"
 import InputGroup from "react-bootstrap/InputGroup"
 
 class MainContent extends React.Component {
