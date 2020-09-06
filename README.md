@@ -6,7 +6,7 @@ The home directory contains the server and the client directory contains the cli
 
 ## To deploy locally:
 
-1) Make sure `npm` is installed. Install node modules by running `node install` in both the home directory and the client directory.
+1) Install node modules by running `npm install` in both the home directory and the client directory.
 
 2) Start the server by typing `node server.js` in the home directory. The server should be running on port 8080. If you change the port, make sure to update the proxy setting in /client/package.json so the client can still find the server locally.
 
